@@ -34,6 +34,7 @@ class Shotgun:
         try:
             if self.shells[0] == 'blank':
                 GameManager.linebreak("Shotgun clicks...")
+                GameManager.linebreak()
                 self.blank_shells -= 1
             else:
                 GameManager.linebreak("BANG!")
@@ -43,6 +44,9 @@ class Shotgun:
                     target.lives -= 1
                 self.live_shells -= 1
                 GameManager.msg(f"{target.name} is on {target.lives} lives!")
+                GameManager.linebreak()
+                if target.lives < 1:
+                    GameManager.EndGame(f"{target.name} has died. GG!")
             del self.shells[0]
             self.rounds -= 1
         except IndexError as e:
@@ -66,6 +70,10 @@ class GameManager:
     def debug(msg):
         print(f"\033[31;1m{str('Debug'):<12}\033[0;0m| {msg}")
 
+    def EndGame(msg):
+        GameManager.msg(f"End of game - {msg}")
+        exit(0)
+
     def RoundOne(shotgun):
         Dealer = Player("Dealer", 4, '\033[32;1m')
         Dealer.say(f"What's your name?")
@@ -77,7 +85,7 @@ class GameManager:
                 GameManager.msg("Player name too long! Must be below 12 characters.")
         Frisk = Player(playername, 4, '\033[35;1m')
 
-        while Dealer.lives > 0 and Frisk.lives > 0:
+        while True:
             GameManager.debug(f"{shotgun.live_shells} live, {shotgun.blank_shells} blank")
             Dealer.say(f"Your turn, {Frisk.name}.")
             GameManager.linebreak()
@@ -115,9 +123,6 @@ class GameManager:
             movecount = 2
             while movecount > 0:
                 time.sleep(0.5)
-                if Dealer.lives < 1:
-                    GameManager.msg(f"The Dealer died. {Frisk.name} wins!")
-                    break
                 if shotgun.rounds == 0:
                     shotgun.Reload()
                     break
@@ -143,16 +148,6 @@ class GameManager:
                     continue
             if shotgun.rounds == 0:
                 shotgun.Reload()
-        
-        if Dealer.lives <= 0:
-            GameManager.msg(f"The Dealer died. {Frisk.name} wins!")
-            exit(0)
-        if Frisk.lives <= 0:
-            GameManager.msg(f"{Frisk.name} died. L + ratio")
-            exit(1)
-            
-            
-
 
 class Player:
     def __init__(self, name, lives, colour):
